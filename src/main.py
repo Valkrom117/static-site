@@ -10,7 +10,6 @@ def main():
     basepath = "/"
     if len(sys.argv) > 1:
         basepath = sys.argv[1]
-
     print (basepath)
 
     if os.path.exists("docs"):
@@ -56,6 +55,7 @@ def generate_page(from_path, template_path, dest_path, basepath):
     page = page.replace("{{ Content }}", htmlString)
     page = page.replace('href="/', 'href="' + basepath)
     page = page.replace('src="/', 'src="'+basepath)
+    print(page)
 
     dirpath = os.path.dirname(dest_path)
     if dirpath:
