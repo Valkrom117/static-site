@@ -37,7 +37,7 @@ def extract_title(markdown):
         if line.startswith("# "): return line[1:].lstrip().rstrip()
     raise Exception("No Title header found")
 
-def generate_page(from_path, template_path, dest_path, basepath="/"):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     with open(from_path) as md:
         markdown = md.read()
@@ -61,7 +61,7 @@ def generate_page(from_path, template_path, dest_path, basepath="/"):
     with open(dest_path, "w", encoding="utf-8") as f:
         f.write(page)
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath="/"):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     if not os.path.exists(dir_path_content):
         raise Exception("Invalid origin directory")
     os.makedirs(dest_dir_path, exist_ok=True)
@@ -75,7 +75,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, bas
             generate_pages_recursive(src_path, template_path, dst_path, basepath)
         elif name.endswith(".md") and os.path.isfile(src_path):
             dest_html = os.path.join(dest_dir_path, name[:-3] + ".html")
-            generate_page(src_path, template_path, dest_html)
+            generate_page(src_path, template_path, dest_html, basepath)
         # else: ignore non-markdown files
 
 
