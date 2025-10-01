@@ -1,28 +1,20 @@
-from textnode import TextNode, TextType
 import os
 import shutil
+import sys
+
 from markdown_to_html import markdown_to_html_node
+from textnode import TextNode, TextType
+
 
 def main():
-    if os.path.exists("public"):
-        shutil.rmtree("public")
-    copy_static("static", "public")
 
-    # origin_paths = ["content/index.md",
-    #                 "content/blog/glorfindel/index.md",
-    #                 "content/blog/majesty/index.md",
-    #                 "content/blog/tom/index.md",
-    #                 "content/contact/index.md"]
-    
-    # public_paths = ["public/index.html",
-    #                 "public/blog/glorfindel/index.html",
-    #                 "public/blog/majesty/index.html",
-    #                 "public/blog/tom/index.html",
-    #                 "public/contact/index.html"]
+    basepath = sys.argv[0]
 
-    # for i in range(0, len(origin_paths)):
-    #     generate_page(origin_paths[i], "template.html", public_paths[i])
-    generate_pages_recursive("./content", "template.html", "./public")
+    if os.path.exists("docs"):
+        shutil.rmtree("docs")
+    copy_static("static", "docs")
+
+    generate_pages_recursive("./content", "template.html", "./docs", basepath)
 
 
 def copy_static(origin, target):
@@ -45,7 +37,7 @@ def extract_title(markdown):
         if line.startswith("# "): return line[1:].lstrip().rstrip()
     raise Exception("No Title header found")
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath="/"):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     with open(from_path) as md:
         markdown = md.read()
@@ -59,6 +51,8 @@ def generate_page(from_path, template_path, dest_path):
 
     page = page.replace("{{ Title }}", title)
     page = page.replace("{{ Content }}", htmlString)
+    page = page.replace('href="/', f'href="{basepath}')
+    page = page.replace('src="/', f'src="{basepath}')
 
     dirpath = os.path.dirname(dest_path)
     if dirpath:
@@ -67,7 +61,7 @@ def generate_page(from_path, template_path, dest_path):
     with open(dest_path, "w", encoding="utf-8") as f:
         f.write(page)
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath="/"):
     if not os.path.exists(dir_path_content):
         raise Exception("Invalid origin directory")
     os.makedirs(dest_dir_path, exist_ok=True)
@@ -78,7 +72,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
 
         if os.path.isdir(src_path):
             os.makedirs(dst_path, exist_ok=True)
-            generate_pages_recursive(src_path, template_path, dst_path)
+            generate_pages_recursive(src_path, template_path, dst_path, basepath)
         elif name.endswith(".md") and os.path.isfile(src_path):
             dest_html = os.path.join(dest_dir_path, name[:-3] + ".html")
             generate_page(src_path, template_path, dest_html)
