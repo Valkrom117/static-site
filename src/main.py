@@ -8,7 +8,7 @@ from textnode import TextNode, TextType
 
 def main():
 
-    basepath = sys.argv[0]
+    basepath = sys.argv[1]
 
     if os.path.exists("docs"):
         shutil.rmtree("docs")
